@@ -1,4 +1,4 @@
-# VS Code Livebook
+# WIP VS Code Livebook
 
 An extension to run a Livebook instance inside your VS Code
 
