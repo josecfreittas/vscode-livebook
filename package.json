@@ -2,7 +2,7 @@
   "name": "livebook",
   "displayName": "Livebook for VSCode",
   "description": "",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "josecfreittas",
   "repository": {
     "type": "git",
