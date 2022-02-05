@@ -1,26 +1,23 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-import * as vscode from 'vscode';
+import { ExtensionContext, window, OutputChannel, extensions } from "vscode";
+import * as os from "os";
+import * as statusBarItem from "./statusBarItem";
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-	
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "livebook" is now active!');
+function showDebugInfo(outputChannel: OutputChannel): void {
+	const extension = extensions.getExtension("josecfreittas.livebook");
+	if (!extension) return;
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	let disposable = vscode.commands.registerCommand('livebook.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Livebook for VSCode!');
-	});
-
-	context.subscriptions.push(disposable);
+	outputChannel.appendLine(`Livebook for VSCode version ${extension.packageJSON.version}`);
+	outputChannel.appendLine(`Operating System Version ${os.platform()} ${os.release()}`);
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() {}
+export function activate(context: ExtensionContext) {
+
+	const { createOutputChannel } = window;
+	const outputChannel = createOutputChannel("Livebook");
+
+	showDebugInfo(outputChannel);
+
+	statusBarItem.createStatusBarItem(context, outputChannel);
+}
+
+export function deactivate() { }
