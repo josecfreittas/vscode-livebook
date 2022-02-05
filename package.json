@@ -1,8 +1,8 @@
 {
   "name": "livebook",
   "displayName": "Livebook for VSCode",
-  "description": "",
-  "version": "0.0.4",
+  "description": "Run a Livebook instance inside your VS Code!",
+  "version": "0.0.5",
   "publisher": "josecfreittas",
   "repository": {
     "type": "git",
@@ -13,10 +13,14 @@
   },
   "icon": "images/logo.png",
   "categories": [
-    "Other"
+    "Other",
+    "Data Science",
+    "Machine Learning",
+    "Notebooks",
+    "Visualization",
+    "Education"
   ],
   "activationEvents": [
-    "onCommand:livebook.helloWorld",
     "*"
   ],
   "main": "./out/extension.js",
