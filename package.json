@@ -27,7 +27,30 @@
   "contributes": {
     "configuration": {
       "title": "Livebook for VSCode"
-    }
+    },
+    "languages": [
+      {
+        "id": "livemarkdown",
+        "extensions": [
+          ".livemd"
+        ],
+        "aliases": [
+          "Livebook notebook"
+        ],
+        "icon": {
+          "light": "./images/livebook.png",
+          "dark": "./images/livebook.png"
+        },
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "livemarkdown",
+        "scopeName": "source.elixir.livemarkdown",
+        "path": "./syntaxes/livemarkdown.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
