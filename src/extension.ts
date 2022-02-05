@@ -1,23 +1,31 @@
-import { ExtensionContext, window, OutputChannel, extensions } from "vscode";
+import { ExtensionContext, window, extensions } from "vscode";
+import { createStatusBarItem } from "./statusBarItem";
+import { setState, state } from "./sharedState";
+import { registerWebview } from "./webview";
 import * as os from "os";
-import * as statusBarItem from "./statusBarItem";
 
-function showDebugInfo(outputChannel: OutputChannel): void {
+function showDebugInfo(): void {
 	const extension = extensions.getExtension("josecfreittas.livebook");
-	if (!extension) return;
+	if (!extension || !state.outputChannel) return;
 
-	outputChannel.appendLine(`Livebook for VSCode version ${extension.packageJSON.version}`);
-	outputChannel.appendLine(`Operating System Version ${os.platform()} ${os.release()}`);
+	state.outputChannel.appendLine(`Livebook for VSCode version ${extension.packageJSON.version}`);
+	state.outputChannel.appendLine(`Operating System Version ${os.platform()} ${os.release()}`);
+}
+
+function createOutputChannel(): void {
+	const { createOutputChannel } = window;
+	setState("outputChannel", createOutputChannel("Livebook"));
 }
 
 export function activate(context: ExtensionContext) {
 
-	const { createOutputChannel } = window;
-	const outputChannel = createOutputChannel("Livebook");
+	setState("context", context);
 
-	showDebugInfo(outputChannel);
+	createOutputChannel();
 
-	statusBarItem.createStatusBarItem(context, outputChannel);
+	showDebugInfo();
+	registerWebview();
+	createStatusBarItem();
 }
 
 export function deactivate() { }
