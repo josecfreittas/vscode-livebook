@@ -1,7 +1,16 @@
-import { ChildProcess } from "child_process";
 import { ExtensionContext, OutputChannel, StatusBarItem, WebviewPanel } from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+
+export const state: {
+    uri: string;
+    isRunning: boolean;
+    panels: WebviewPanel[];
+    processPid?: number;
+    itemBar?: StatusBarItem;
+    context?: ExtensionContext;
+    outputChannel?: OutputChannel;
+} = { uri: "http://localhost:23478", isRunning: false, panels: [] };
 
 export function createPidStateFileIfNotExists(): void {
     const dirPath = String(state.context?.globalStorageUri.path);
@@ -23,19 +32,9 @@ export function updatePidStateFile(process: number | null): void {
     const dirPath = String(state.context?.globalStorageUri.path);
     const filePath = path.join(dirPath, "pid");
 
-    console.log("updating pid");
+    console.log("Updating persisted pid");
     fs.writeFileSync(filePath, pid);
 }
-
-export const state: {
-    uri: string;
-    isRunning: boolean;
-    processPid?: number;
-    panel?: WebviewPanel;
-    itemBar?: StatusBarItem;
-    context?: ExtensionContext;
-    outputChannel?: OutputChannel;
-} = { isRunning: false, uri: "http://localhost:23478" };
 
 export async function watchPidLoop() {
     while (true) {

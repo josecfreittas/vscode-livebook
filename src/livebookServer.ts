@@ -3,29 +3,36 @@ import { state, updatePidStateFile } from "./sharedState";
 
 let livebookProcess: ChildProcess | null;
 
-export async function startServer(): Promise<void> {
-    const livebookBuild = state.context?.asAbsolutePath('./livebook');
-
-    livebookProcess = exec(`${livebookBuild} server --no-token --port 23478`);
-    if (livebookProcess.stdout) {
-        livebookProcess.stdout.setEncoding('utf8');
-        livebookProcess.stdout.on('data', function (data) {
+function logSdout(process: ChildProcess) {
+    if (process.stdout) {
+        process.stdout.setEncoding('utf8');
+        process.stdout.on('data', function (data) {
             if (data.startsWith("[Livebook] Application running at")) state.isRunning = true;
 
             state.outputChannel?.appendLine(data);
             console.log(data);
         });
     }
+}
+
+function addListeners(process: ChildProcess) {
+    process.addListener("close", () => stopServer());
+    process.addListener("disconnect", () => stopServer());
+    process.addListener("error", () => stopServer());
+    process.addListener("exit", () => stopServer());
+}
+
+export async function startServer(): Promise<void> {
+    const livebookBuild = state.context?.asAbsolutePath('./livebook');
+
+    state.outputChannel?.appendLine("Livebook server is starting...");
+
+    livebookProcess = exec(`${livebookBuild} server --no-token --port 23478`);
+    logSdout(livebookProcess);
+    addListeners(livebookProcess);
 
     state.processPid = livebookProcess.pid;
     updatePidStateFile(state.processPid);
-
-    livebookProcess.addListener("close", () => stopServer());
-    livebookProcess.addListener("disconnect", () => stopServer());
-    livebookProcess.addListener("error", () => stopServer());
-    livebookProcess.addListener("exit", () => stopServer());
-
-    state.outputChannel?.appendLine("Livebook server starting...");
 }
 
 export function stopServer(): void {

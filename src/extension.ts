@@ -1,7 +1,7 @@
 import { ExtensionContext, window, extensions, commands } from "vscode";
 import { createPidStateFileIfNotExists, watchPidLoop, state } from "./sharedState";
 import { startServer, stopServer } from "./livebookServer";
-import { openFile, registerWebview } from "./webview";
+import { openFile, registerOpenWebviewCommand } from "./webview";
 import { createStatusBarItem } from "./statusBarItem";
 import * as os from "os";
 
@@ -27,27 +27,30 @@ function registerOpenFileCommand() {
 	}));
 }
 
-export function activate(context: ExtensionContext) {
+function registerStartAndStopCommands() {
+	state.context?.subscriptions.push(
+		commands.registerCommand("livebook.start", async () => {
+			console.log("Starting Livebook...");
+			startServer();
+		}),
+		commands.registerCommand("livebook.stop", async () => {
+			console.log("Stopping Livebook...");
+			stopServer();
+		})
+	);
+}
 
+export function activate(context: ExtensionContext) {
 	state.context = context;
 
 	createPidStateFileIfNotExists();
 	createOutputChannel();
-
-	state.context?.subscriptions.push(commands.registerCommand("livebook.startLivebook", async () => {
-		console.log("starting Livebook");
-		startServer();
-	}));
-
-	state.context?.subscriptions.push(commands.registerCommand("livebook.stopLivebook", async () => {
-		console.log("stopping Livebook");
-		stopServer();
-	}));
-
 	showDebugInfo();
-	registerWebview();
-	createStatusBarItem();
+
+	registerStartAndStopCommands();
+	registerOpenWebviewCommand();
 	registerOpenFileCommand();
+	createStatusBarItem();
 	watchPidLoop();
 }
 

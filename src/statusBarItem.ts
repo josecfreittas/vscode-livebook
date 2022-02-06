@@ -1,6 +1,5 @@
 import { StatusBarAlignment, commands, window } from "vscode";
-import { startServer, stopServer } from "./livebookServer";
-import { disposeWebview } from "./webview";
+import { disposeWebviews } from "./webview";
 import { state } from "./sharedState";
 
 export function createStatusBarItem() {
@@ -28,16 +27,16 @@ function doWatchLoop() {
     if (state.itemBar.text !== startingText && state.processPid && !state.isRunning) {
         state.itemBar.text = startingText;
         state.itemBar.color = "#ff87a7";
-        state.itemBar.command = "livebook.stopLivebook";
+        state.itemBar.command = "livebook.stop";
         state.itemBar.tooltip = "Wait a little for the server to start...";
         return;
     }
 
     const onText = "Livebook on";
     if (state.itemBar.text !== onText && state.processPid && state.isRunning) {
-        state.itemBar.text = "Livebook on";
         state.itemBar.color = "#ff87a7";
-        state.itemBar.command = "livebook.stopLivebook";
+        state.itemBar.text = "Livebook on";
+        state.itemBar.command = "livebook.stop";
         state.itemBar.tooltip = "Click to stop the server";
         commands.executeCommand("livebook.openWebview");
         return;
@@ -45,10 +44,10 @@ function doWatchLoop() {
 
     const offText = "Livebook off";
     if (state.itemBar.text !== offText && !(state.processPid || state.isRunning)) {
-        state.itemBar.text = "Livebook off";
         state.itemBar.color = undefined;
-        state.itemBar.command = "livebook.startLivebook";
+        state.itemBar.text = "Livebook off";
+        state.itemBar.command = "livebook.start";
         state.itemBar.tooltip = "Click to start the server";
-        disposeWebview();
+        disposeWebviews();
     }
 }
