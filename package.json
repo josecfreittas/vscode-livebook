@@ -2,7 +2,7 @@
   "name": "livebook",
   "displayName": "Livebook for VSCode",
   "description": "Run a Livebook instance inside your VS Code!",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "josecfreittas",
   "repository": {
     "type": "git",

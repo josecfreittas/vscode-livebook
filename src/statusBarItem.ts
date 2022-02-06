@@ -4,17 +4,6 @@ import { disposeWebview } from "./webview";
 import { state } from "./sharedState";
 
 export function createStatusBarItem() {
-
-    state.context?.subscriptions.push(commands.registerCommand("livebook.startLivebook", async () => {
-        console.log("starting Livebook");
-        startServer();
-    }));
-
-    state.context?.subscriptions.push(commands.registerCommand("livebook.stopLivebook", async () => {
-        console.log("stopping Livebook");
-        stopServer();
-    }));
-
     state.itemBar = window.createStatusBarItem(StatusBarAlignment.Right, 100);
 
     state.itemBar.text = "VSCode Livebook";
@@ -36,7 +25,7 @@ function doWatchLoop() {
     if (!state.itemBar) return;
 
     const startingText = "Livebook starting...";
-    if (state.itemBar.text !== startingText && state.process && !state.uri) {
+    if (state.itemBar.text !== startingText && state.processPid && !state.isRunning) {
         state.itemBar.text = startingText;
         state.itemBar.color = "#ff87a7";
         state.itemBar.command = "livebook.stopLivebook";
@@ -45,7 +34,7 @@ function doWatchLoop() {
     }
 
     const onText = "Livebook on";
-    if (state.itemBar.text !== onText && state.process && state.uri) {
+    if (state.itemBar.text !== onText && state.processPid && state.isRunning) {
         state.itemBar.text = "Livebook on";
         state.itemBar.color = "#ff87a7";
         state.itemBar.command = "livebook.stopLivebook";
@@ -55,7 +44,7 @@ function doWatchLoop() {
     }
 
     const offText = "Livebook off";
-    if (state.itemBar.text !== offText && !(state.process || state.uri)) {
+    if (state.itemBar.text !== offText && !(state.processPid || state.isRunning)) {
         state.itemBar.text = "Livebook off";
         state.itemBar.color = undefined;
         state.itemBar.command = "livebook.startLivebook";

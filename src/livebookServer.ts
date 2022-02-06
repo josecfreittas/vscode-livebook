@@ -1,46 +1,49 @@
-import { exec } from "child_process";
-import { state } from "./sharedState";
+import { exec, ChildProcess, } from "child_process";
+import { state, updatePidStateFile } from "./sharedState";
 
-function setUri(uri: string): void {
-    uri = uri.replace("[Livebook] Application running at", "").trim();
-    if (uri.charAt(uri.length - 1) !== "/") {
-        uri = `${uri}/`;
-    }
-    state.uri = uri;
-}
+let livebookProcess: ChildProcess | null;
 
 export async function startServer(): Promise<void> {
     const livebookBuild = state.context?.asAbsolutePath('./livebook');
 
-    state.process = exec(`${livebookBuild} server --no-token --port 23478`);
-    if (state.process.stdout) {
-        state.process.stdout.setEncoding('utf8');
-        state.process.stdout.on('data', function (data) {
-            if (data.startsWith("[Livebook] Application running at")) setUri(data);
+    livebookProcess = exec(`${livebookBuild} server --no-token --port 23478`);
+    if (livebookProcess.stdout) {
+        livebookProcess.stdout.setEncoding('utf8');
+        livebookProcess.stdout.on('data', function (data) {
+            if (data.startsWith("[Livebook] Application running at")) state.isRunning = true;
 
             state.outputChannel?.appendLine(data);
             console.log(data);
         });
     }
 
-    state.process.addListener("close", () => stopServer());
-    state.process.addListener("disconnect", () => stopServer());
-    state.process.addListener("error", () => stopServer());
-    state.process.addListener("exit", () => stopServer());
+    state.processPid = livebookProcess.pid;
+    updatePidStateFile(state.processPid);
+
+    livebookProcess.addListener("close", () => stopServer());
+    livebookProcess.addListener("disconnect", () => stopServer());
+    livebookProcess.addListener("error", () => stopServer());
+    livebookProcess.addListener("exit", () => stopServer());
 
     state.outputChannel?.appendLine("Livebook server starting...");
 }
 
 export function stopServer(): void {
-    if (!state.process) return;
 
     try {
-        state.process.removeAllListeners()
-        state.process.kill();
+        if (livebookProcess) {
+            livebookProcess.removeAllListeners()
+            livebookProcess.kill();
+        }
+        if (state.processPid) {
+            process.kill(state.processPid);
+        }
     } catch (error) {
         console.log(error);
     }
 
-    delete state.uri;
-    delete state.process;
+    livebookProcess = null;
+    state.isRunning = false;
+    delete state.processPid;
+    updatePidStateFile(null);
 }

@@ -1,7 +1,8 @@
 import { ExtensionContext, window, extensions, commands } from "vscode";
-import { createStatusBarItem } from "./statusBarItem";
-import { setState, state } from "./sharedState";
+import { createPidStateFileIfNotExists, watchPidLoop, state } from "./sharedState";
+import { startServer, stopServer } from "./livebookServer";
 import { openFile, registerWebview } from "./webview";
+import { createStatusBarItem } from "./statusBarItem";
 import * as os from "os";
 
 function showDebugInfo(): void {
@@ -14,7 +15,7 @@ function showDebugInfo(): void {
 
 function createOutputChannel(): void {
 	const { createOutputChannel } = window;
-	setState("outputChannel", createOutputChannel("Livebook"));
+	state.outputChannel = createOutputChannel("Livebook");
 }
 
 function registerOpenFileCommand() {
@@ -28,14 +29,26 @@ function registerOpenFileCommand() {
 
 export function activate(context: ExtensionContext) {
 
-	setState("context", context);
+	state.context = context;
 
+	createPidStateFileIfNotExists();
 	createOutputChannel();
+
+	state.context?.subscriptions.push(commands.registerCommand("livebook.startLivebook", async () => {
+		console.log("starting Livebook");
+		startServer();
+	}));
+
+	state.context?.subscriptions.push(commands.registerCommand("livebook.stopLivebook", async () => {
+		console.log("stopping Livebook");
+		stopServer();
+	}));
 
 	showDebugInfo();
 	registerWebview();
 	createStatusBarItem();
 	registerOpenFileCommand();
+	watchPidLoop();
 }
 
 export function deactivate() { }
