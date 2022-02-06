@@ -2,7 +2,7 @@
   "name": "livebook",
   "displayName": "Livebook for VSCode",
   "description": "Run a Livebook instance inside your VS Code!",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "josecfreittas",
   "repository": {
     "type": "git",
@@ -49,6 +49,14 @@
         "language": "livemarkdown",
         "scopeName": "source.elixir.livemarkdown",
         "path": "./syntaxes/livemarkdown.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "livebook.openFile",
+        "title": "Open with Livebook",
+        "category": "Livebook",
+        "enablement": "editorLangId == markdown || editorLangId == livemarkdown"
       }
     ]
   },

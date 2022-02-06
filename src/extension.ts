@@ -1,7 +1,7 @@
-import { ExtensionContext, window, extensions } from "vscode";
+import { ExtensionContext, window, extensions, commands } from "vscode";
 import { createStatusBarItem } from "./statusBarItem";
 import { setState, state } from "./sharedState";
-import { registerWebview } from "./webview";
+import { openFile, registerWebview } from "./webview";
 import * as os from "os";
 
 function showDebugInfo(): void {
@@ -17,6 +17,15 @@ function createOutputChannel(): void {
 	setState("outputChannel", createOutputChannel("Livebook"));
 }
 
+function registerOpenFileCommand() {
+	state.context?.subscriptions.push(commands.registerCommand("livebook.openFile", async (args) => {
+		console.log("Opening Livebook notebook...");
+		const activeEditor = window.activeTextEditor;
+		if (!activeEditor) return;
+		openFile(activeEditor.document.uri.path);
+	}));
+}
+
 export function activate(context: ExtensionContext) {
 
 	setState("context", context);
@@ -26,6 +35,7 @@ export function activate(context: ExtensionContext) {
 	showDebugInfo();
 	registerWebview();
 	createStatusBarItem();
+	registerOpenFileCommand();
 }
 
 export function deactivate() { }

@@ -1,16 +1,22 @@
 import { exec } from "child_process";
 import { state } from "./sharedState";
 
+function setUri(uri: string): void {
+    uri = uri.replace("[Livebook] Application running at", "").trim();
+    if (uri.charAt(uri.length - 1) !== "/") {
+        uri = `${uri}/`;
+    }
+    state.uri = uri;
+}
+
 export async function startServer(): Promise<void> {
     const livebookBuild = state.context?.asAbsolutePath('./livebook');
 
-    state.process = exec(`${livebookBuild} server --port 23478`);
+    state.process = exec(`${livebookBuild} server --no-token --port 23478`);
     if (state.process.stdout) {
         state.process.stdout.setEncoding('utf8');
         state.process.stdout.on('data', function (data) {
-            if (data.startsWith("[Livebook] Application running at")) {
-                state.uri = data.replace("[Livebook] Application running at", "").trim();
-            }
+            if (data.startsWith("[Livebook] Application running at")) setUri(data);
 
             state.outputChannel?.appendLine(data);
             console.log(data);

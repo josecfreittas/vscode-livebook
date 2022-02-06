@@ -10,8 +10,8 @@ An extension to run a Livebook instance inside your VS Code
 ## Planned features
 
 - ✅ Run and access Livebook directly on VS Code
+- ✅ Open `.livemd` files with Livebook directly on VS Code
 - ❎ Run without the need of local installations of Erlang and Elixir
-- ❎ Open `.livemd` files with Livebook directly on VS Code
 
 ## Known Issues
 
