@@ -2,7 +2,7 @@
   "name": "livebook",
   "displayName": "Livebook for VSCode",
   "description": "Add syntax support for livemd files and run a Livebook inside your VS Code!",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "publisher": "josecfreittas",
   "repository": {
     "type": "git",

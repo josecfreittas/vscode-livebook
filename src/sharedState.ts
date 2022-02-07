@@ -16,13 +16,8 @@ export function createPidStateFileIfNotExists(): void {
     const dirPath = String(state.context?.globalStorageUri.path);
     const filePath = path.join(dirPath, "pid");
 
-    if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(path.dirname(dirPath));
-    }
-
-    if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, "");
-    }
+    if (!fs.existsSync(dirPath)) fs.mkdirSync(dirPath);
+    if (!fs.existsSync(filePath)) fs.writeFileSync(filePath, "");
 }
 
 export function updatePidStateFile(process: number | null): void {
